@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="dark">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>GalTransl 字幕预览</title>
+<link rel="stylesheet" href="/app/css/tokens.css">
+<link rel="stylesheet" href="/bridge/connection.css">
+<style>
+body{margin:0;background:var(--bg);color:var(--text);font-family:var(--font-ui)}
+main{padding:16px;line-height:1.7}small{color:var(--text-2)}
+#bar{padding:14px 22px;border:1px solid var(--line-strong);border-radius:14px;text-align:center;font-size:22px;white-space:pre-wrap;overflow-wrap:anywhere}
+#ja{font-family:var(--font-ja);font-size:.72em;color:var(--subtitle-muted)}#zh{font-weight:600;color:var(--subtitle-ink)}
+#status{font-size:12px;color:var(--text-2);margin:8px 0}
+[hidden]{display:none!important}
+</style>
+<main><small>浏览器字幕预览 · Ctrl+Shift+H 仅本窗隐藏 · 游戏置顶/整窗穿透尚未接入</small>
+<div id="status" role="status">正在连接</div>
+<div id="bar" class="subtitle-bar"><div id="ja"></div><div id="zh">等待译文</div></div></main>
+<script src="/bridge/api.js"></script>
+<script src="/bridge/presentation.js"></script>
+<script src="/bridge/subtitle.js"></script>
+</html>

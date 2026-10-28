@@ -1,0 +1,11 @@
+{
+  "port": 18038,
+  "context_tokens": 2048,
+  "reserve_headroom_mib": 384,
+  "runtime_allowance_mib": 384,
+  "max_gpu_layers": 100,
+  "minimum_free_mib": 2048,
+  "minimum_start_free_mib": 2560,
+  "reasoning_mode": "off",
+  "reasoning_budget": 0
+}

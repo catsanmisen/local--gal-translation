@@ -1,0 +1,136 @@
+/* ============================================================
+   GalTranslClient 设计令牌 v0.1
+   依据：docs/前端需求.md + taste-skill(design-taste-frontend)
+   策略：CSS 变量单令牌体系，深/浅双主题，默认深色。
+   规则锁定：
+   - 三种基础色：深灰 / 中灰 / 灰白，透明层次统一，不按状态增加色相
+   - 圆角体系唯一：面板 14px / 控件 10px / 胶囊 999px
+   - 禁用纯黑 #000 与纯白 #fff，使用 off-black / off-white
+   - 数字一律使用 --font-mono（等宽），状态由图标与文字区分，色调保持一致
+   ============================================================ */
+
+:root {
+  /* 字体栈：CJK 场景使用系统字体，避免 WebFont 体积；
+     不用 Inter 默认，中文走雅黑 UI，日文走游哥特 */
+  --font-ui: "Segoe UI Variable Text", "Segoe UI", "Microsoft YaHei UI",
+    "Microsoft YaHei", "PingFang SC", sans-serif;
+  --font-ja: "Yu Gothic UI", "Yu Gothic", "Hiragino Sans", "Meiryo",
+    "Microsoft YaHei UI", sans-serif;
+  --font-mono: "Cascadia Mono", "JetBrains Mono", Consolas,
+    "Courier New", monospace;
+
+  /* 圆角：唯一体系 */
+  --r-panel: 14px;
+  --r-control: 10px;
+  --r-pill: 999px;
+
+  /* 动效：克制，统一缓动 */
+  --ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --t-fast: 160ms;
+  --t-med: 240ms;
+
+  /* 间距基准 4px */
+  --sp-1: 4px;
+  --sp-2: 8px;
+  --sp-3: 12px;
+  --sp-4: 16px;
+  --sp-5: 24px;
+  --sp-6: 32px;
+  --sp-7: 48px;
+}
+
+/* ---------- 深色主题（默认） ---------- */
+:root,
+[data-theme="dark"] {
+  color-scheme: dark;
+
+  --bg: #202226;
+  --surface: rgba(73,77,84,.12);
+  --surface-2: rgba(73,77,84,.24);
+  --surface-3: rgba(73,77,84,.42);
+  --line: rgba(238, 239, 241, 0.08);
+  --line-strong: rgba(238, 239, 241, 0.14);
+
+  --text: #eeeff1;
+  --text-2: rgba(238,239,241,.78);
+  /* 小号普通文本对比度 ≥ 4.5:1（对 --bg/--surface/--surface-2 实测 ≥ 5.0） */
+  --text-3: rgba(238,239,241,.72);
+
+  /* 中性强调色：同一基础灰，不引入新色相 */
+  --accent: #eeeff1;
+  --accent-soft: rgba(73,77,84,.3);
+  /* 填充按钮用更深色阶，保证白字对比度 ≥ 4.5:1 */
+  --accent-solid: #494d54;
+  --accent-solid-hover: rgba(73,77,84,.85);
+  --on-accent: #eeeff1;
+
+  /* 语义状态保留文字与图标，统一中性色 */
+  --ok: #eeeff1;
+  --ok-soft: rgba(73,77,84,.22);
+  --warn: #eeeff1;
+  --warn-soft: rgba(73,77,84,.22);
+  --danger: #eeeff1;
+  --danger-soft: rgba(73,77,84,.22);
+
+  /* 阴影向背景色靠拢，不用纯黑投影 */
+  --shadow-panel: 0 8px 28px rgba(32,34,38, 0.45);
+  --shadow-subtitle: 0 4px 18px rgba(32,34,38, 0.55);
+
+  /* 字幕窗成对令牌：底衬 RGB + 前景色配套定义；
+     底衬透明度（--sub-alpha，由设置控制）与文字透明度分离，互不影响 */
+  --subtitle-bg-rgb: 32,34,38;
+  --subtitle-text: #eeeff1;
+  --subtitle-text-dim: rgba(238,239,241, 0.66);
+  --subtitle-border: rgba(238, 239, 241, 0.1);
+  --subtitle-highlight: rgba(238, 239, 241, 0.08);
+}
+
+/* ---------- 浅色主题 ---------- */
+[data-theme="light"] {
+  color-scheme: light;
+
+  --bg: #eeeff1;
+  --surface: rgba(238,239,241,.9);
+  --surface-2: rgba(73,77,84,.04);
+  --surface-3: rgba(73,77,84,.1);
+  --line: rgba(32,34,38, 0.09);
+  --line-strong: rgba(32,34,38, 0.16);
+
+  --text: #202226;
+  --text-2: rgba(32,34,38,.8);
+  /* 小号普通文本对比度 ≥ 4.5:1（对 --bg/--surface/--surface-2 实测 ≥ 5.0） */
+  --text-3: rgba(32,34,38,.76);
+
+  --accent: #494d54;
+  --accent-soft: rgba(73,77,84,.1);
+  --accent-solid: #494d54;
+  --accent-solid-hover: rgba(73,77,84,.9);
+  --on-accent: #eeeff1;
+
+  --ok: #494d54;
+  --ok-soft: rgba(73,77,84,.1);
+  --warn: #494d54;
+  --warn-soft: rgba(73,77,84,.1);
+  --danger: #494d54;
+  --danger-soft: rgba(73,77,84,.1);
+
+  --shadow-panel: 0 8px 28px rgba(32,34,38, 0.1);
+  --shadow-subtitle: 0 4px 18px rgba(32,34,38, 0.2);
+  /* 浅色主题字幕：深文字 + 浅底衬，保证对比度 */
+  --subtitle-bg-rgb: 238,239,241;
+  --subtitle-text: #202226;
+  --subtitle-text-dim: rgba(32,34,38, 0.62);
+  --subtitle-border: rgba(32,34,38, 0.14);
+  --subtitle-highlight: rgba(238, 239, 241, 0.6);
+}
+
+/* ---------- 动效降级（强制） ---------- */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

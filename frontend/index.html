@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GalTransl Client · 界面设计稿（Mock）</title>
+  <link rel="stylesheet" href="vendor/phosphor/style.css">
+  <link rel="stylesheet" href="css/tokens.css">
+  <link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+<div class="shell">
+
+  <!-- 左侧导航轨 -->
+  <nav class="rail" aria-label="主导航">
+    <div class="rail-logo" title="GalTransl Client"><i class="ph ph-translate"></i></div>
+    <button class="rail-item active" data-page="translate" aria-current="page"><i class="ph ph-chat-centered-text"></i><span>翻译</span></button>
+    <button class="rail-item" data-page="subtitle"><i class="ph ph-subtitles"></i><span>字幕</span></button>
+    <button class="rail-item" data-page="glossary"><i class="ph ph-book-bookmark"></i><span>术语表</span></button>
+    <button class="rail-item" data-page="history"><i class="ph ph-clock-counter-clockwise"></i><span>Backlog</span></button>
+    <button class="rail-item" data-page="settings"><i class="ph ph-gear-six"></i><span>配置</span></button>
+    <div class="rail-spacer"></div>
+    <button class="icon-btn" id="theme-toggle" title="切换深浅主题" aria-label="切换深浅主题"><i class="ph ph-moon"></i></button>
+  </nav>
+
+  <div class="main">
+
+    <!-- 顶部状态栏：主窗口必显信息 -->
+    <header class="topbar">
+      <h1 class="topbar-title">GalTransl Client</h1>
+      <span class="mode-badge" id="mode-badge">Mock</span>
+
+      <span class="state-pill" id="state-pill" data-tone="" role="status" aria-live="polite">
+        <span class="dot"></span><span id="state-text">未启动</span>
+      </span>
+
+      <div class="topbar-metrics">
+        <span class="metric" id="metric-vram" title="可用显存 / 后端保留阈值">
+          <i class="ph ph-gpu"></i>
+          <span class="value" id="vram-value">--</span>
+        </span>
+        <span class="metric" id="metric-model" title="模型">
+          <i class="ph ph-cube"></i>
+          <span class="value" id="model-value">galtransl4-ja-zh Q6_K</span>
+        </span>
+        <span class="metric" title="当前游戏与会话">
+          <i class="ph ph-game-controller"></i>
+          <span id="session-value">无会话</span>
+        </span>
+      </div>
+
+      <div class="topbar-actions">
+        <button class="btn ghost small" id="btn-backlog" title="仅在主动打开时查看历史翻译"><i class="ph ph-clock-counter-clockwise"></i>历史翻译</button>
+        <button class="btn primary" id="btn-start"><i class="ph ph-play"></i>启动翻译</button>
+        <button class="btn" id="btn-stop" disabled><i class="ph ph-stop"></i>停止</button>
+      </div>
+    </header>
+
+    <!-- ================= 翻译页 ================= -->
+    <section class="page active" id="page-translate">
+      <div class="page-inner">
+
+        <div class="banner warn" id="banner-vram" hidden>
+          <i class="ph ph-warning"></i>
+          <div class="banner-body">
+            <div class="banner-title">可用显存低于保留阈值</div>
+            <div class="banner-desc" id="banner-vram-desc">
+              后端已暂停翻译。显存恢复前不会调度新请求，前端不会绕过保留阈值。
+            </div>
+            <div class="banner-actions">
+              <button class="btn small" id="btn-vram-recheck">重新检查状态</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="banner err" id="banner-error" hidden>
+          <i class="ph ph-x-circle"></i>
+          <div class="banner-body">
+            <div class="banner-title" id="banner-error-title">最近错误</div>
+            <div class="banner-desc" id="banner-error-desc"></div>
+          </div>
+          <button class="icon-btn" id="banner-error-close" title="关闭" aria-label="关闭错误提示"><i class="ph ph-x"></i></button>
+        </div>
+
+        <div class="translate-grid">
+          <!-- 输入与预览 -->
+          <div class="panel panel-pad">
+            <h3 class="panel-title">原文输入</h3>
+
+            <div class="field">
+              <label id="source-kind-label">输入来源</label>
+              <div class="seg" id="source-kind" role="group" aria-labelledby="source-kind-label">
+                <button class="on" data-kind="manual">手动输入</button>
+                <button data-kind="clipboard">剪贴板</button>
+              </div>
+            </div>
+
+            <div class="field" id="field-clipboard" hidden>
+              <div class="switch-row">
+                <button class="switch" id="clipboard-switch" role="switch" aria-checked="false" aria-label="剪贴板监听"></button>
+                <div>
+                  <div class="switch-label">监听剪贴板</div>
+                  <div class="switch-hint">默认关闭，由你手动打开；监听期间不回写剪贴板，避免循环。Mock 阶段由样例按钮模拟，真实监听由桌面壳实现。</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="field" id="field-manual">
+              <label for="input-ja">日文原文（多行）</label>
+              <textarea class="ja-input" id="input-ja" rows="6" maxlength="4000"
+                placeholder="ここに日文を入力してください…"></textarea>
+              <div class="char-count" id="char-count">0 / 2000</div>
+              <div class="error-text" id="input-error"></div>
+            </div>
+
+            <div class="field">
+              <label for="input-speaker">说话人（可选，仅确实提取到时填写）</label>
+              <input type="text" id="input-speaker" placeholder="不推测，留空即不传">
+            </div>
+
+            <div class="input-toolbar">
+              <button class="btn ghost small" id="btn-reset-session" title="读档 / 切换场景前调用，返回后使用新 epoch">
+                <i class="ph ph-arrow-counter-clockwise"></i>重置会话
+              </button>
+              <span class="spacer"></span>
+              <button class="btn" id="btn-cancel" disabled><i class="ph ph-prohibit"></i>取消</button>
+              <button class="btn primary" id="btn-translate" disabled><i class="ph ph-translate"></i>翻译</button>
+            </div>
+          </div>
+
+          <!-- 译文流 -->
+          <div class="panel panel-pad stream-box">
+            <div class="stream-status" id="stream-status" aria-live="polite">
+              <span class="tag" id="stream-tag">待输入</span>
+              <span id="stream-meta" class="mono"></span>
+            </div>
+
+            <div class="stream-body" id="stream-body">
+              <div class="empty" id="stream-empty">
+                <i class="ph ph-chat-centered-dots"></i>
+                <div class="empty-title">还没有译文</div>
+                <div class="empty-hint">在左侧输入日文后点击翻译。流式增量会标注“翻译中”，只有完整结束才标为完成。</div>
+              </div>
+              <div id="stream-content" hidden>
+                <div class="stream-original" id="stream-original"></div>
+                <div class="stream-translation" id="stream-translation"></div>
+              </div>
+              <div id="stream-skeleton" hidden>
+                <div class="skeleton-line" style="width: 38%; margin-bottom: 14px;"></div>
+                <div class="skeleton-line" style="width: 86%; margin-bottom: 10px;"></div>
+                <div class="skeleton-line" style="width: 64%;"></div>
+              </div>
+            </div>
+
+            <div class="stream-actions" id="stream-actions" hidden>
+              <button class="btn small" id="btn-retry"><i class="ph ph-arrow-clockwise"></i>重试</button>
+              <button class="btn ghost small" id="btn-to-subtitle"><i class="ph ph-subtitles"></i>打开字幕窗</button>
+              <span class="hint">有效台词会自动进入字幕窗，失败片段会显式标注</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= 字幕页 ================= -->
+    <section class="page" id="page-subtitle">
+      <div class="page-inner">
+        <div class="page-head">
+          <h2>悬浮字幕</h2>
+          <p>有效台词实时进入字幕。置顶、整窗鼠标穿透与全局隐藏快捷键是 Windows 桌面壳能力，本页为样式与交互预览；字幕不进入自己的 OCR 区域。</p>
+        </div>
+
+        <div class="subtitle-grid">
+          <div class="subtitle-stage" id="subtitle-stage">
+            <span class="stage-note">游戏画面占位 · 预览</span>
+            <span class="tag stage-state" id="sub-state-badge" hidden></span>
+            <div class="subtitle-bar" id="subtitle-preview" style="font-size: 22px;">
+              <div class="sub-ja" id="sub-prev-ja">（等待台词）</div>
+              <div class="sub-zh" id="sub-prev-zh"></div>
+            </div>
+          </div>
+
+          <div class="panel panel-pad">
+            <h3 class="panel-title">字幕设置（按游戏配置保存）</h3>
+            <div class="control-list">
+              <div class="control-row">
+                <div class="control-label"><div class="name">字号</div></div>
+                <input type="range" id="sub-font" min="14" max="40" value="22" aria-label="字幕字号">
+                <span class="control-value" id="sub-font-value">22px</span>
+              </div>
+              <div class="control-row">
+                <div class="control-label">
+                  <div class="name">底衬不透明度</div>
+                  <div class="desc">只调整底衬，文字保持清晰</div>
+                </div>
+                <input type="range" id="sub-opacity" min="20" max="100" value="62" aria-label="字幕底衬不透明度">
+                <span class="control-value" id="sub-opacity-value">62%</span>
+              </div>
+              <div class="control-row">
+                <div class="control-label">
+                  <div class="name">显示内容</div>
+                  <div class="desc">原文始终保留，可随时切换查看</div>
+                </div>
+                <div class="seg" id="sub-mode" role="group" aria-label="字幕显示内容">
+                  <button class="on" data-mode="both">原文+译文</button>
+                  <button data-mode="zh">仅译文</button>
+                  <button data-mode="ja">仅原文</button>
+                </div>
+              </div>
+              <div class="control-row">
+                <div class="control-label">
+                  <div class="name">鼠标穿透</div>
+                  <div class="desc">预览仅作用于本页元素；整窗穿透由桌面壳实现</div>
+                </div>
+                <button class="switch" id="sub-clickthrough" role="switch" aria-checked="false" aria-label="鼠标穿透"></button>
+              </div>
+              <div class="control-row">
+                <div class="control-label">
+                  <div class="name">隐藏快捷键</div>
+                  <div class="desc">字幕窗内已生效；全局热键由桌面壳实现</div>
+                </div>
+                <span class="control-value mono">Ctrl + Shift + H</span>
+              </div>
+              <div class="control-row">
+                <div class="control-label">
+                  <div class="name">独立字幕窗</div>
+                  <div class="desc">打开 mock 字幕窗；正式实现为 Windows 透明置顶窗</div>
+                </div>
+                <button class="btn small" id="btn-open-subtitle"><i class="ph ph-arrow-square-out"></i>打开</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= 术语表 ================= -->
+    <section class="page" id="page-glossary">
+      <div class="page-inner">
+        <div class="page-head">
+          <h2>术语表</h2>
+          <p>保存后调用后端写入，同时刷新术语版本与会话上下文。导入导出均为 UTF-8。</p>
+        </div>
+
+        <div class="banner err" id="banner-glossary" hidden>
+          <i class="ph ph-x-circle"></i>
+          <div class="banner-body">
+            <div class="banner-title">术语表保存失败</div>
+            <div class="banner-desc" id="banner-glossary-desc"></div>
+          </div>
+          <button class="icon-btn" id="banner-glossary-close" aria-label="关闭术语表错误提示"><i class="ph ph-x"></i></button>
+        </div>
+
+        <div class="panel panel-pad">
+          <div class="glossary-toolbar">
+            <button class="btn small" id="btn-glossary-add"><i class="ph ph-plus"></i>新增词条</button>
+            <button class="btn ghost small" id="btn-glossary-import"><i class="ph ph-upload-simple"></i>导入 UTF-8</button>
+            <button class="btn ghost small" id="btn-glossary-export"><i class="ph ph-download-simple"></i>导出 UTF-8</button>
+            <span class="spacer"></span>
+            <span class="version-chip" id="glossary-version">glossary v--</span>
+            <button class="btn primary small" id="btn-glossary-save"><i class="ph ph-floppy-disk"></i>保存到后端</button>
+          </div>
+
+          <div class="table-wrap" style="margin-top: 16px;">
+            <table class="data" id="glossary-table">
+              <thead>
+                <tr><th style="width: 30%;">日文词</th><th style="width: 30%;">中文译名</th><th>备注</th><th style="width: 44px;"></th></tr>
+              </thead>
+              <tbody id="glossary-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= 历史 ================= -->
+    <section class="page" id="page-history">
+      <div class="page-inner">
+        <div class="page-head">
+          <h2>Backlog · 历史翻译</h2>
+          <p>仅在你主动打开时显示。新台词不会打开或刷新本页，历史不会重播到实时字幕。</p>
+          <button class="btn small" id="btn-backlog-close"><i class="ph ph-arrow-left"></i>返回当前翻译</button>
+        </div>
+
+        <div class="panel panel-pad">
+          <div class="glossary-toolbar">
+            <button class="btn ghost small" id="btn-history-refresh"><i class="ph ph-arrow-clockwise"></i>刷新记录</button>
+            <button class="btn ghost small" id="btn-history-export"><i class="ph ph-download-simple"></i>导出对照</button>
+            <span class="spacer"></span>
+            <button class="btn ghost small" id="btn-history-clear" title="读档 / 切换场景：重置推理上下文，历史保留"><i class="ph ph-arrow-counter-clockwise"></i>清空上下文（读档）</button>
+            <button class="btn danger-ghost small" id="btn-history-delete" title="永久删除当前游戏的历史记录（含原文对照），不影响其他游戏"><i class="ph ph-trash"></i>删除历史</button>
+          </div>
+          <div id="history-list" style="margin-top: 8px;">
+            <div class="empty" id="history-empty">
+              <i class="ph ph-clock-counter-clockwise"></i>
+              <div class="empty-title">暂无历史</div>
+              <div class="empty-hint">完成的翻译会按时间倒序出现在这里。</div>
+            </div>
+          </div>
+          <div class="pager" id="history-pager" hidden>
+            <button class="icon-btn" id="pager-prev" title="上一页" aria-label="上一页"><i class="ph ph-caret-left"></i></button>
+            <span class="mono" id="pager-info" style="font-size: 12px; color: var(--text-2);">1 / 1</span>
+            <button class="icon-btn" id="pager-next" title="下一页" aria-label="下一页"><i class="ph ph-caret-right"></i></button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= 配置 ================= -->
+    <section class="page" id="page-settings">
+      <div class="page-inner">
+        <div class="page-head">
+          <h2>游戏配置</h2>
+          <p>按游戏保存输入源与字幕样式，切换时即生效，与全局设置分开存放。</p>
+        </div>
+
+        <div class="section" id="model-settings">
+          <h3 class="panel-title">模型运行设备 · 全局设置</h3>
+          <div class="panel panel-pad">
+            <div class="field">
+              <label id="model-mode-label">选择运行设备</label>
+              <div class="seg" id="model-mode" role="group" aria-labelledby="model-mode-label">
+                <button class="on" data-model-mode="auto">自动</button>
+                <button data-model-mode="cpu">CPU</button>
+                <button data-model-mode="gpu">GPU</button>
+              </div>
+            </div>
+            <div class="field">
+              <label for="model-reserve">GPU 显存预留</label>
+              <select id="model-reserve">
+                <option value="2048">2048 MiB · 默认</option>
+                <option value="1536">1536 MiB</option>
+                <option value="1024">1024 MiB · 留更多空间给模型</option>
+              </select>
+            </div>
+            <p class="model-state" id="model-runtime" role="status" aria-live="polite">尚未连接模型</p>
+            <p class="model-hint" id="model-policy-hint">GPU 显存不足时保持 GPU 选择并提示等待；CPU 使用处理器。较低预留可加载更多 GPU 层，也会减少留给游戏的显存。</p>
+            <label class="model-wallpaper-option"><input type="checkbox" id="wallpaper-relief" checked>自动临时停止高占用壁纸</label>
+            <p class="model-hint" id="wallpaper-runtime" role="status" aria-live="polite">占用显存过大的壁纸可能暂时关闭，翻译结束后自动恢复。</p>
+            <button class="btn primary small" id="btn-model-save">保存并应用设备设置</button>
+          </div>
+        </div>
+
+        <div class="section">
+          <h3 class="panel-title">当前游戏 / 会话</h3>
+          <div class="profile-grid" id="profile-grid">
+            <button class="profile-card on" data-profile="default">
+              <div class="pc-name">默认配置</div>
+              <div class="pc-desc">手动输入 · 字幕 22px</div>
+            </button>
+            <button class="profile-card" data-profile="sakura">
+              <div class="pc-name">樱乃学园物语（示例）</div>
+              <div class="pc-desc">剪贴板源 · 字幕 22px</div>
+            </button>
+            <button class="profile-card" data-profile="yoru">
+              <div class="pc-name">夜巡（示例）</div>
+              <div class="pc-desc">手动输入 · 字幕 26px</div>
+            </button>
+          </div>
+        </div>
+
+        <div class="section">
+          <h3 class="panel-title" id="settings-input-sources-title">输入源</h3>
+          <div class="panel panel-pad">
+            <div class="control-list">
+              <div class="control-row">
+                <div class="control-label"><div class="name">手动输入</div><div class="desc">首版已支持</div></div>
+                <span class="tag final">可用</span>
+              </div>
+              <div class="control-row">
+                <div class="control-label"><div class="name">剪贴板监听</div><div class="desc">首版已支持，默认关闭；Mock 阶段为样例模拟</div></div>
+                <span class="tag final">可用</span>
+              </div>
+              <div class="control-row">
+                <div class="control-label">
+                  <div class="name">HOOK 文本提取</div>
+                  <div class="desc">下一阶段提供原始日文事件，后端排队翻译</div>
+                </div>
+                <span class="unsupported"><i class="ph ph-plugs-connected"></i>输入适配器未安装</span>
+              </div>
+              <div class="control-row">
+                <div class="control-label">
+                  <div class="name">OCR 区域捕获</div>
+                  <div class="desc">捕获区域交互将在适配层就绪后开放</div>
+                </div>
+                <span class="unsupported"><i class="ph ph-crop"></i>输入适配器未安装</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="section">
+          <h3 class="panel-title">连接</h3>
+          <div class="panel panel-pad">
+            <div class="control-list">
+              <div class="control-row">
+                <div class="control-label">
+                  <div class="name">客户端后端</div>
+                  <div class="desc">地址与会话令牌由启动器注入，界面不展示令牌，也不写入日志或设置文件</div>
+                </div>
+                <span class="control-value mono">127.0.0.1:18039</span>
+              </div>
+              <div class="control-row">
+                <div class="control-label">
+                  <div class="name">退出时回收</div>
+                  <div class="desc">关闭窗口会请求停止本客户端启动的后台进程（Mock 已在页面卸载时模拟；真实回收由桌面壳与后端实现，不按进程名批量结束其他模型服务）</div>
+                </div>
+                <span class="tag">Mock 已模拟</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Mock 调试条：仅 mock 模式显示 -->
+    <footer class="mock-bar" id="mock-bar">
+      <span class="mock-label"><i class="ph ph-flask"></i>Mock 场景</span>
+      <button class="btn ghost" data-scenario="normal">正常流式</button>
+      <button class="btn ghost" data-scenario="superseded">旧请求被取消</button>
+      <button class="btn ghost" data-scenario="interrupted">流中断</button>
+      <button class="btn ghost" data-scenario="truncated">生成截断</button>
+      <button class="btn ghost" data-scenario="vram_low">低显存暂停</button>
+      <button class="btn ghost" data-scenario="engine_not_ready">引擎未就绪</button>
+      <button class="btn ghost" id="btn-glossary-fail">术语保存失败（下一次）</button>
+      <span style="flex:1"></span>
+      <span class="mono" style="font-size: 11px;">SSE 切片: 随机 1-23B（含中文中间切开）</span>
+    </footer>
+  </div>
+</div>
+
+<script src="js/sse.js"></script>
+<script src="js/backlog.js"></script>
+<script src="js/mock-api.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

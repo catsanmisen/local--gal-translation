@@ -1,0 +1,9 @@
+{
+  "textractor_tag": "v5.2.0",
+  "path": "texthook/minhook",
+  "repository": "https://github.com/TsudaKageyu/minhook.git",
+  "commit": "423d1e45af2ed2719a5c31e990e935ef301ed9c3",
+  "archive": "MinHook-423d1e45-source.zip",
+  "sha256": "fbf8be08b3cd3cdcceb439f8fd9a01c7054089fa1f0564fa26a05a32a4fd50ec",
+  "license": "BSD-2-Clause"
+}

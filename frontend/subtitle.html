@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <title>悬浮字幕 · Mock</title>
+  <link rel="stylesheet" href="vendor/phosphor/style.css">
+  <link rel="stylesheet" href="css/tokens.css">
+  <style>
+    /* 独立字幕窗 mock：样式与交互预览。
+       正式实现为 Windows 透明置顶窗：置顶、整窗鼠标穿透、
+       全局隐藏快捷键均为桌面壳能力，本页内仅模拟可见效果。 */
+    html, body {
+      margin: 0;
+      height: 100%;
+      overflow: hidden;
+      font-family: var(--font-ui);
+    }
+
+    /* mock 用半透明底示意游戏画面；正式实现为透明置顶窗 */
+    body { background: rgba(32,34,38, 0.35); }
+
+    .subtitle-bar {
+      position: absolute;
+      left: 50%;
+      bottom: 24px;
+      transform: translateX(-50%);
+      max-width: 92%;
+      padding: 10px 22px;
+      border-radius: var(--r-panel);
+      /* 底衬透明度与文字透明度分离：--sub-alpha 只调底衬 */
+      background: rgba(var(--subtitle-bg-rgb), var(--sub-alpha, 0.62));
+      backdrop-filter: blur(14px) saturate(140%);
+      -webkit-backdrop-filter: blur(14px) saturate(140%);
+      border: 1px solid var(--subtitle-border);
+      box-shadow: var(--shadow-subtitle), inset 0 1px 0 var(--subtitle-highlight);
+      text-align: center;
+      cursor: move;
+      user-select: none;
+      font-size: 22px;
+      transition: opacity var(--t-fast) var(--ease);
+    }
+
+    .subtitle-bar.hidden-by-hotkey { opacity: 0; pointer-events: none; }
+
+    .sub-ja {
+      font-family: var(--font-ja);
+      color: var(--subtitle-text-dim);
+      font-size: 0.72em;
+      margin-bottom: 2px;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .sub-zh {
+      color: var(--subtitle-text);
+      font-weight: 600;
+      line-height: 1.5;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    /* 非完成状态的显式标记：片段不冒充译文 */
+    .sub-state {
+      display: none;
+      font-family: var(--font-ui);
+      font-size: 10.5px;
+      font-weight: 500;
+      letter-spacing: 0.04em;
+      margin-bottom: 4px;
+      color: var(--warn);
+    }
+
+    .sub-state.show { display: block; }
+    .sub-state.bad { color: var(--danger); }
+
+    .mock-note {
+      position: absolute;
+      top: 8px;
+      left: 12px;
+      font-family: var(--font-mono);
+      font-size: 10.5px;
+      letter-spacing: 0.08em;
+      color: rgba(238,239,241,.72);
+      text-transform: uppercase;
+    }
+  </style>
+</head>
+<body>
+  <span class="mock-note">Subtitle Mock · Ctrl+Shift+H 隐藏（本页内生效）</span>
+  <div class="subtitle-bar" id="bar">
+    <div class="sub-state" id="state"></div>
+    <div class="sub-ja" id="ja">（等待台词）</div>
+    <div class="sub-zh" id="zh"></div>
+  </div>
+
+  <script>
+    (function () {
+      const bar = document.getElementById("bar");
+      const ja = document.getElementById("ja");
+      const zh = document.getElementById("zh");
+      const stateEl = document.getElementById("state");
+
+      /* 主题跟随主窗（localStorage galtransl.theme） */
+      function applyTheme() {
+        const t = localStorage.getItem("galtransl.theme");
+        document.documentElement.dataset.theme = t === "light" ? "light" : "dark";
+      }
+
+      function applyPrefs() {
+        try {
+          const p = JSON.parse(localStorage.getItem("galtransl.subtitlePrefs") || "{}");
+          if (p.font) bar.style.fontSize = p.font + "px";
+          // 底衬透明度独立作用，文字不受影响
+          if (p.opacity) bar.style.setProperty("--sub-alpha", (p.opacity / 100).toFixed(2));
+          ja.style.display = p.mode === "zh" ? "none" : "";
+          zh.style.display = p.mode === "ja" ? "none" : "";
+          bar.style.pointerEvents = p.clickthrough ? "none" : "";
+        } catch (_) { /* 使用默认样式 */ }
+      }
+
+      /* 字幕状态流：payload 携带身份与终态，非 final 一律显式标注 */
+      const STATE_LABEL = {
+        streaming: ["翻译中", false],
+        cancelled: ["已取消", true],
+        interrupted: ["已中断", true],
+        error: ["未完成", true],
+      };
+
+      function applyText() {
+        let p = null;
+        try { p = JSON.parse(localStorage.getItem("galtransl.subtitle") || "null"); } catch (_) { /* 忽略 */ }
+        if (!p || p.state === "idle") {
+          ja.textContent = "（等待台词）";
+          zh.textContent = "";
+          stateEl.className = "sub-state";
+          return;
+        }
+        ja.textContent = p.ja || "";              // 原文始终保留，可切换查看
+        zh.textContent = p.zh || "";
+        if (p.state === "final") {
+          stateEl.className = "sub-state";
+        } else {
+          const [label, bad] = STATE_LABEL[p.state] || ["未完成", true];
+          stateEl.textContent = p.reason ? `${label}：${p.reason}` : label;
+          stateEl.className = "sub-state show" + (bad ? " bad" : "");
+        }
+      }
+
+      applyTheme();
+      applyPrefs();
+      applyText();
+      window.addEventListener("storage", (e) => {
+        if (e.key === "galtransl.theme") applyTheme();
+        if (e.key === "galtransl.subtitlePrefs") applyPrefs();
+        if (e.key === "galtransl.subtitle") applyText();
+      });
+
+      /* 隐藏快捷键（mock：本窗口内生效；正式实现为桌面壳全局热键） */
+      document.addEventListener("keydown", (e) => {
+        if (e.ctrlKey && e.shiftKey && (e.key === "H" || e.key === "h")) {
+          bar.classList.toggle("hidden-by-hotkey");
+        }
+      });
+
+      /* 可移动 */
+      let dragging = false, dx = 0, dy = 0;
+      bar.addEventListener("pointerdown", (e) => {
+        dragging = true;
+        const r = bar.getBoundingClientRect();
+        dx = e.clientX - r.left; dy = e.clientY - r.top;
+        bar.setPointerCapture(e.pointerId);
+      });
+      bar.addEventListener("pointermove", (e) => {
+        if (!dragging) return;
+        bar.style.left = (e.clientX - dx) + "px";
+        bar.style.top = (e.clientY - dy) + "px";
+        bar.style.bottom = "auto";
+        bar.style.transform = "none";
+      });
+      bar.addEventListener("pointerup", () => { dragging = false; });
+    })();
+  </script>
+</body>
+</html>

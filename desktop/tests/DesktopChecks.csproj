@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup><OutputType>Exe</OutputType><TargetFramework>net10.0</TargetFramework><ImplicitUsings>enable</ImplicitUsings><Nullable>enable</Nullable><AllowUnsafeBlocks>true</AllowUnsafeBlocks></PropertyGroup>
+  <ItemGroup>
+    <Compile Include="../GalTransl.Desktop/TextStabilizer.cs" Link="TextStabilizer.cs" />
+    <Compile Include="../GalTransl.Desktop/CaptureTextFilter.cs" Link="CaptureTextFilter.cs" />
+    <Compile Include="../GalTransl.Desktop/PageText.cs" Link="PageText.cs" />
+    <Compile Include="../GalTransl.Desktop/Models.cs" Link="Models.cs" />
+    <Compile Include="../GalTransl.Desktop/CaptionLayout.cs" Link="CaptionLayout.cs" />
+    <Compile Include="../GalTransl.Desktop/CaptionPlacement.cs" Link="CaptionPlacement.cs" />
+    <Compile Include="../GalTransl.Desktop/SingleInputGate.cs" Link="SingleInputGate.cs" />
+    <Compile Include="../GalTransl.Desktop/ProfileDrafts.cs" Link="ProfileDrafts.cs" />
+    <Compile Include="../GalTransl.Desktop/BackendProtocol.cs" Link="BackendProtocol.cs" />
+    <Compile Include="../GalTransl.Desktop/Api.cs" Link="Api.cs" />
+    <Compile Include="../GalTransl.Desktop/ChildJob.cs" Link="ChildJob.cs" />
+    <Compile Include="../GalTransl.Desktop/OwnedBackend.cs" Link="OwnedBackend.cs" />
+    <Compile Include="../GalTransl.Desktop/BackendRecovery.cs" Link="BackendRecovery.cs" />
+    <Compile Include="../GalTransl.Desktop/InstanceExit.cs" Link="InstanceExit.cs" />
+    <Compile Include="../GalTransl.Desktop/HookProtocol.cs" Link="HookProtocol.cs" />
+    <Compile Include="../GalTransl.Desktop/HookInbox.cs" Link="HookInbox.cs" />
+    <Compile Include="../GalTransl.Desktop/SnapshotGate.cs" Link="SnapshotGate.cs" />
+    <Compile Include="../GalTransl.Desktop/CaptureRegions.cs" Link="CaptureRegions.cs" />
+    <Compile Include="../GalTransl.Desktop/OcrSampling.cs" Link="OcrSampling.cs" />
+  </ItemGroup>
+</Project>

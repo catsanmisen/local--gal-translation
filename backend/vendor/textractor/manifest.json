@@ -1,0 +1,38 @@
+{
+  "version": "5.2.0",
+  "license": "GPL-3.0",
+  "release": {
+    "path": "Textractor-5.2.0.zip",
+    "sha256": "3efdcf390261fcfb6a44220113c68b06eba22a3ef441ac618208238b52ee7974",
+    "size": 35242917,
+    "source": "https://github.com/Artikash/Textractor/releases/download/v5.2.0/Textractor-5.2.0-Zip-Version-English-Only.zip"
+  },
+  "source": {
+    "path": "Textractor-v5.2.0-source.zip",
+    "sha256": "96e3967c92d0dc1b0d5a91ddbe1f43e4fc9755e8a067788b4da12465ef726adc",
+    "size": 17101369,
+    "source": "https://codeload.github.com/Artikash/Textractor/zip/refs/tags/v5.2.0"
+  },
+  "files": [
+    {
+      "path": "x64/texthook.dll",
+      "sha256": "43b966f566e1d6362416041bfb55dc4e04aef7bcb8b5aae2da8179c24b2dd58e",
+      "size": 279928
+    },
+    {
+      "path": "x64/TextractorCLI.exe",
+      "sha256": "3c70e50a33fe1165e430eb3df6b9658c3a848257d294b92aab29d87632fe3783",
+      "size": 155000
+    },
+    {
+      "path": "x86/texthook.dll",
+      "sha256": "8fde589a24ef861c581b61829626d35d6b0fcc958aaaeca620dff630f1ed465b",
+      "size": 337784
+    },
+    {
+      "path": "x86/TextractorCLI.exe",
+      "sha256": "b8cebf066023db1ef5921135e0aa0f68f17bade795d910a2df58a3da2bebf233",
+      "size": 129400
+    }
+  ]
+}

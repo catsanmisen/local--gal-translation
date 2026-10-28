@@ -1,0 +1,11 @@
+{
+  "name": "galtransl-client-frontend",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "GalTranslClient 首版界面设计稿（Mock 模式，零依赖）",
+  "scripts": {
+    "dev": "node server.mjs",
+    "test": "node test-sse.mjs && node test-mock.cjs && node test-backlog.cjs"
+  }
+}

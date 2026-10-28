@@ -1,0 +1,12 @@
+event: meta
+data: {"request_id":"req-0001","session_id":"session-demo","epoch":1,"sequence":1,"status":"running"}
+
+event: delta
+data: {"request_id":"req-0001","session_id":"session-demo","epoch":1,"sequence":1,"text":"今天"}
+
+event: delta
+data: {"request_id":"req-0001","session_id":"session-demo","epoch":1,"sequence":1,"text":"真是个好天气呢。"}
+
+event: final
+data: {"request_id":"req-0001","session_id":"session-demo","epoch":1,"sequence":1,"translation":"今天真是个好天气呢。","elapsed_ms":869,"warnings":[],"context_committed":true}
+

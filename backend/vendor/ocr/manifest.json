@@ -1,0 +1,29 @@
+{
+  "rapidocr": "3.10.0",
+  "engine": "onnxruntime CPU",
+  "ocr_version": "PP-OCRv4",
+  "language": "japan",
+  "files": [
+    {
+      "path": "ch_PP-OCRv4_det_mobile.onnx",
+      "sha256": "d2a7720d45a54257208b1e13e36a8479894cb74155a5efe29462512d42f49da9",
+      "size": 4745517,
+      "source": "https://www.modelscope.cn/models/RapidAI/RapidOCR/resolve/v3.10.0/onnx/PP-OCRv4/det/ch_PP-OCRv4_det_mobile.onnx",
+      "task": "det"
+    },
+    {
+      "path": "ch_ppocr_mobile_v2.0_cls_mobile.onnx",
+      "sha256": "e47acedf663230f8863ff1ab0e64dd2d82b838fceb5957146dab185a89d6215c",
+      "size": 585532,
+      "source": "https://www.modelscope.cn/models/RapidAI/RapidOCR/resolve/v3.10.0/onnx/PP-OCRv4/cls/ch_ppocr_mobile_v2.0_cls_mobile.onnx",
+      "task": "cls"
+    },
+    {
+      "path": "japan_PP-OCRv4_rec_mobile.onnx",
+      "sha256": "e1075a67dba758ecfc7ebc78a10ae61c95ac8fb66a9c86fab5541e33f085cb7a",
+      "size": 9753335,
+      "source": "https://www.modelscope.cn/models/RapidAI/RapidOCR/resolve/v3.10.0/onnx/PP-OCRv4/rec/japan_PP-OCRv4_rec_mobile.onnx",
+      "task": "rec"
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+/* Connection-specific overrides, kept outside frontend/. */
+.main {min-height:0;overflow:hidden}
+.page {min-height:0}
+.topbar,.mock-bar {flex-shrink:0}
+.stream-original,.stream-translation,.history-ja,.history-zh {white-space:pre-wrap;overflow-wrap:anywhere}
+:root {--subtitle-opacity:.62;--subtitle-ink:#eeeff1;--subtitle-muted:rgba(238,239,241,.72);--subtitle-base:32,34,38}
+[data-theme="light"] {--subtitle-ink:#202226;--subtitle-muted:rgba(32,34,38,.76);--subtitle-base:238,239,241;--text-3:rgba(32,34,38,.76)}
+[data-theme="dark"] {--text-3:rgba(238,239,241,.72)}
+.subtitle-bar {background:rgba(var(--subtitle-base),var(--subtitle-opacity));opacity:1}
+.subtitle-bar .sub-ja {color:var(--subtitle-muted);white-space:pre-wrap}
+.subtitle-bar .sub-zh {color:var(--subtitle-ink);white-space:pre-wrap}
+.rail-item:focus-visible,.btn:focus-visible,.icon-btn:focus-visible {outline:2px solid var(--accent);outline-offset:3px}
+.input-notice {font-size:12px;color:var(--text-2);margin-top:8px}
+.history-confirm {max-width:440px;border:1px solid var(--line);border-radius:12px;padding:24px;background:var(--surface);color:var(--text)}
+.history-confirm::backdrop {background:rgba(32,34,38,.55)}
+.history-confirm p {line-height:1.7;margin:16px 0;color:var(--text-2)}
+.history-confirm > div {display:flex;justify-content:flex-end;gap:12px}
+@media(max-width:900px) {
+  .topbar-metrics {display:flex;flex-wrap:wrap;margin-left:0}
+  .topbar-metrics .metric:nth-child(2) {display:none}
+  .page {padding:20px}
+}

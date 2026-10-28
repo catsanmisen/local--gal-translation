@@ -1,0 +1,46 @@
+{
+  "purpose": "preserved upstream license and notice materials for a private candidate",
+  "files": [
+    {
+      "path": "LICENSE-llama-b11429.txt",
+      "source": "https://raw.githubusercontent.com/ggml-org/llama.cpp/b11429/LICENSE",
+      "sha256": "94f29bbed6a22c35b992c5c6ebf0e7c92f13b836b90f36f461c9cf2f0f1d010d"
+    },
+    {
+      "path": "CUDA-13.0-EULA.html",
+      "source": "https://docs.nvidia.com/cuda/archive/13.0.0/eula/index.html",
+      "sha256": "f8babe932f92aa7a25dd560b22d13c0d30c48b280b918eccc62ddb836142cabe"
+    },
+    {
+      "path": "MODEL-CC-BY-NC-SA-4.0.txt",
+      "source": "https://creativecommons.org/licenses/by-nc-sa/4.0/legalcode.txt",
+      "sha256": "e66c269d4819aaab34b49ef5220c4ddab6756f21bb5180761a4eb8561f2b7bbd"
+    },
+    {
+      "component": "flatbuffers",
+      "version": "25.12.19",
+      "path": "LICENSE-flatbuffers-25.12.19.txt",
+      "source": "https://raw.githubusercontent.com/google/flatbuffers/v25.12.19/LICENSE",
+      "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+    }
+  ],
+  "cuda_components": [
+    {
+      "file": "cudart64_13.dll",
+      "file_version": "6,14,11,13040",
+      "category": "CUDA Runtime"
+    },
+    {
+      "file": "cublas64_13.dll",
+      "file_version": "6,14,11,1370",
+      "category": "CUDA BLAS"
+    },
+    {
+      "file": "cublasLt64_13.dll",
+      "file_version": "6,14,11,1370",
+      "category": "CUDA BLAS"
+    }
+  ],
+  "cuda_reference": "CUDA 13.0 EULA Attachment A includes Runtime and BLAS libraries; full EULA including bundled third-party notices is preserved.",
+  "textractor": "v5.2.0 plus pinned MinHook source. Separate processes and unmodified binaries; no application-wide relicensing is asserted."
+}

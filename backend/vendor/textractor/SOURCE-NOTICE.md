@@ -1,0 +1,5 @@
+Textractor v5.2.0, Artikash and contributors, GPL-3.0.
+
+Official unmodified CLI and texthook are separate processes/components. Corresponding upstream source is included in Textractor-v5.2.0-source.zip. Repository/tag: https://github.com/Artikash/Textractor/tree/v5.2.0 . To rebuild, initialize the pinned .gitmodules dependencies and follow upstream README/CMake instructions (Visual Studio + CMake; Qt required for GUI, not CLI). This client does not ship the Qt GUI or translation extensions. Upstream release: https://github.com/Artikash/Textractor/releases/tag/v5.2.0 . Keep this notice, the GPL and source archive in redistributed packages.
+
+Pinned dependency source: MinHook-423d1e45-source.zip, BSD-2-Clause, commit 423d1e45af2ed2719a5c31e990e935ef301ed9c3. This is the exact texthook/minhook gitlink reported by the upstream v5.2.0 tree. See source-submodules.json for archive digest. Extract the upstream Textractor archive, then extract this archive into texthook/minhook before building; no moving default branch is used. CLI/texthook sources and the pinned submodule are supplied alongside the unmodified binaries.

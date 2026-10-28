@@ -1,0 +1,9 @@
+event: meta
+data: {"request_id":"req-old","session_id":"session-demo","epoch":1,"sequence":1,"status":"running"}
+
+event: delta
+data: {"request_id":"req-old","session_id":"session-demo","epoch":1,"sequence":1,"text":"这是旧台词"}
+
+event: cancelled
+data: {"request_id":"req-old","session_id":"session-demo","epoch":1,"sequence":1,"reason":"superseded"}
+

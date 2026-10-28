@@ -1,0 +1,1 @@
+{"api_version":"0.1","state":"ready","message":"模型就绪（示例数据）","model":{"id":"galtransl4-ja-zh","quantization":"Q6_K","context_tokens":2048,"gpu_layers":7},"gpu":{"free_mib":2683,"reserve_mib":2048,"sampled_at":"2026-10-10T09:00:00Z"},"active_request_id":null,"capabilities":{"streaming":true,"cancel":true,"auto_recovery":false,"text_events":false},"last_error":null}

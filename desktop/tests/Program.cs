@@ -1,0 +1,97 @@
+using GalTransl.Desktop;
+double time=0;var events=new List<(int Line,string Phase,string Text)>();
+var stable=new TextStabilizer(()=>time){Event=(line,phase,text,_)=>events.Add((line,phase,text))};
+int checks=0;
+void Check(bool success,string name){if(!success)throw new Exception(name);checks++;Console.WriteLine("PASS "+name);}
+stable.Observe("月の光は遠ざかる。");time=400;stable.Observe("月の光は遠ざかる");
+Check(events.Count(x=>x.Phase=="stable")==1&&events[^1].Text.EndsWith('。'),"blinking marker preserves observed punctuation");
+for(int n=0;n<20;n++){time+=400;stable.Observe(n%2==0?"月の光は遠ざかる。":"月の光は遠ざかる");}
+Check(events.Count(x=>x.Phase=="stable")==1,"blinking marker causes no duplicate submissions");
+stable.Observe("明日");time+=400;stable.Observe("明日");Check(events[^1].Phase=="preview","kanji short line waits 600 ms");
+time+=250;stable.Observe("明日");Check(events[^1].Phase=="stable","kanji short line is retained");
+var old=events[^1].Line;stable.Reset();stable.Observe("再開。");Check(events[^1].Line>old,"pause preserves increasing line identity");
+stable.Reset(true);stable.Observe("新場面。");Check(events[^1].Line==1,"new epoch may reset line identity");
+Check(CaptureTextFilter.Dialogue("セーブ\nロード\nコンフィグ\nタイトルへ戻る")=="","complete game menu is not translated");
+Check(CaptureTextFilter.Dialogue("ランゲージ\n解像度\nスクリーンモード")=="","complete configuration menu is not translated");
+Check(CaptureTextFilter.Dialogue("明日\n約束")=="明日\n約束","multiline kanji dialogue is preserved");
+Check(CaptureTextFilter.Dialogue("「セーブしてね。」\n「分かった。」").Length>0,"dialogue mentioning save is preserved");
+Check(CaptureTextFilter.Dialogue("start\nload\nchapter\nSeaBed")=="","English title menu is not submitted to Japanese translator");
+Check(CaptureTextFilter.Dialogue("次のページへ進む >>")==""&&CaptureTextFilter.Dialogue("次のページへ進むンン")==""&&CaptureTextFilter.Dialogue("第三話から開始")=="","observed Aokana chapter menu labels and OCR arrow variants are not mistaken for dialogue");
+Check(CaptureTextFilter.Dialogue("「次のページへ進む。」")=="「次のページへ進む。」"&&CaptureTextFilter.Dialogue("約束")=="約束","chapter filtering retains quoted dialogue and kanji-only short lines");
+Check(!new Caption("","","idle",null,1,0,null,null).HasSource&&!new Caption("以前の文。","","cancelled","r",1,1,null,null).HasSource,"idle menu and cancelled captions cannot leave an empty overlay panel");
+Check(new Caption("新しい文。","","capturing",null,1,2,null,null).HasSource&&new Caption("新しい文。","全文","final","r",1,3,null,null).HasSource,"new source and complete translation retain their caption presentation");
+stable.Reset(true);stable.Observe("日が沈む");time+=400;stable.Observe("日が沈む。");time+=100;stable.Observe("日が沈む");
+Check(events[^1].Phase=="stable"&&events[^1].Text=="日が沈む。","later punctuation improves candidate without resetting stability timer");
+stable.Reset(true);stable.Observe("頭は虚ろで水の中に凭れている。",true);time+=400;stable.Observe("頭は虚ろで水の中に凭れている。",true);
+var finals=events.Count(x=>x.Phase=="stable");var previews=events.Count(x=>x.Phase=="preview");
+for(int n=0;n<20;n++){time+=400;stable.Observe(n%2==0?"頭は虚ろで水の中にれている。":"頭は虚ろで水の中に凭れている。",true);}
+Check(events.Count(x=>x.Phase=="stable")==finals&&events.Count(x=>x.Phase=="preview")==previews,"rare-glyph OCR fluctuation does not repeatedly clear or translate the same line");
+for(int n=0;n<8;n++){time+=400;stable.Observe("頭は虚ろで水の中に置れている。",true);}
+Check(events[^1].Phase=="stable"&&events[^1].Text.Contains('置'),"persistent genuine one-glyph dialogue change is eventually accepted");
+var pages=new PageText();var first=pages.Read("一行目。");pages.Accept("一行目。",first);
+var second=pages.Read("一行目。\n二行目。\n三行目。");Check(second.Text=="二行目。\n三行目。"&&second.FirstLine==1,"NVL append translates only new rows, preserving multiline source");
+pages.Accept("一行目。\n二行目。\n三行目。",second);Check(pages.Read("一行目。\n二行目。\n三行目。").Same,"same NVL page does not resubmit");
+pages.Reset(false);Check(pages.Read("一行目。\n二行目。\n三行目。").Text=="二行目。\n三行目。"&&!pages.Read("一行目。\n二行目。\n三行目。").Same,"resume replays latest source without repeating earlier paragraphs");
+var rejectedPage=new PageText();rejectedPage.Accept("以前の文。",rejectedPage.Read("以前の文。"));
+var undelivered="以前の文。\n新しい文。";rejectedPage.Accept(undelivered,rejectedPage.Read(undelivered));rejectedPage.Reset(false);
+Check(rejectedPage.Read(undelivered).Text=="新しい文。"&&!rejectedPage.Read(undelivered).Same,"focus rejection replays the undelivered delta even while the preceding caption is final");
+pages.Reset(true);Check(pages.Read("一行目。").Text=="一行目。"&&!pages.Read("一行目。").Same,"page clearing permits a repeated sentence in a new scene");
+var unchanged=pages.Read("一行目。");pages.Accept("一行目。",unchanged);Check(pages.Read("一行目。それから新しい話。").Text=="一行目。それから新しい話。","similar replacement sentence preserves complete source");
+pages.Reset(true);var baseline="引越しの目、母が運転する車は何度か往復した。\n私は最後の荷物と一緒に車に乗りこんだ。";
+pages.Accept(baseline,pages.Read(baseline));
+var appended=baseline.Replace("の目","の日")+"\n出発のあと車は幼稚園へ向かった。";
+Check(pages.Read(appended).Text=="出発のあと車は幼稚園へ向かった。"&&pages.Read(appended).FirstLine==2,"old-row OCR correction does not repeat earlier paragraphs on append");
+var replacement=baseline.Replace("の目","の日");
+Check(pages.Read(replacement).Text==replacement,"a changed page without appended rows keeps complete source");
+var changed=appended.Replace("最後の荷物","小さな荷物");
+Check(pages.Read(changed).Text==changed,"larger prefix changes are not silently discarded");
+var longPrefix="引越しの日、母が運転する車はその田舎と都会の間を何度か往復した。\n私は最後の荷物と一緒に車の後部座席に乗りこんだ。\n出発のあと車は幼稚園へ向かう道を辿ったが、幼稚園を過ぎるとその先は私\nには知らない道だった。";
+pages.Reset(true);pages.Accept(longPrefix,pages.Read(longPrefix));
+var drift=longPrefix.Replace("の日","の目").Replace("辿った","迎った")+"\nしかし田舎に戻れるかもしれない。";
+Check(pages.Read(drift).Text=="しかし田舎に戻れるかもしれない。","two old glyph fluctuations in a long prefix preserve only appended rows");
+Check(pages.Read(drift.Replace("最後の","小さな")).Text.Contains("引越し"),"larger changes still preserve the complete page");
+pages.Reset(true);var nvl="「何を覚えてる？」\n小学校のときかな、";
+pages.Accept(nvl,pages.Read(nvl));
+var continuation=pages.Read(nvl+"九歳くらいだったとき。");
+Check(continuation.Text=="九歳くらいだったとき。"&&continuation.FirstLine==1,"NVL same-row continuation submits only newly appended text");
+var continued=nvl+"九歳くらいだったとき。";pages.Accept(continued,continuation);
+Check(pages.Read("[何を覚えてる？]\n小学校のときかな、九歳くらいだったとき。").Same,"several quote shape changes never repeat an accepted page");
+Check(pages.Read("[何を覚えてる？]\n小学校のときかな、九歳くらいだったとき。\nそれから家に戻った。").Text=="それから家に戻った。","old quote drift on append does not replay history");
+pages.Reset(true);pages.Accept("……",pages.Read("……"));
+Check(pages.Read("……\n……").Text=="……"&&!pages.Read("……\n……").Same,"a genuinely new ellipsis row is not suppressed as duplicate text");
+pages.Reset(true);pages.Accept("今日は\n晴れです。",pages.Read("今日は\n晴れです。"));
+Check(pages.Read("今日は晴れ\nです。").Same,"visual row reflow alone cannot replay earlier translations");
+stable.Reset(true);stable.Observe("眼が重い。",true);time+=400;stable.Observe("眼が重い。",true);
+var terminalCount=events.Count;
+for(int n=0;n<6;n++){time+=350;stable.Observe(n%2==0?"瞼が重い。":"眼が重い。",true);}
+Check(events.Count==terminalCount,"short completed OCR dialogue survives intermittent one-glyph noise");
+time+=100;stable.Observe("",true);Check(events.Count==terminalCount,"one empty OCR frame does not erase a completed caption");
+time+=200;stable.Observe("眼が重い。",true);Check(events.Count==terminalCount,"text returning after an OCR miss preserves the final line");
+time+=100;stable.Observe("",true);time+=450;stable.Observe("",true);
+Check(events[^1].Phase=="empty","a confirmed blank game page clears previous caption within a bounded interval");
+var timeout=0;stable.TimedOut=()=>timeout++;stable.Reset(true);
+for(int n=0;n<50;n++){time+=200;stable.Observe("未安定"+n,true);}
+Check(timeout==1&&events[^1].Phase=="empty","continuous OCR changes leave capturing once after eight seconds");
+var afterTimeout=events.Count;for(int n=0;n<8;n++){time+=200;stable.Observe("変化中"+n,true);}
+Check(events.Count==afterTimeout,"unstable recovery does not flash repeated preview or empty events");
+stable.Observe("次の台詞。",true);time+=400;stable.Observe("次の台詞。",true);
+Check(events[^1].Phase=="stable"&&events[^1].Text=="次の台詞。","a stable next line resumes automatically after capture timeout");
+stable.Reset(true);stable.Observe("眼が重い。",true);time+=400;stable.Observe("眼が重い。",true);
+time+=10;stable.Observe("瞼が重い。",true);time+=800;stable.Observe("瞼が重い。",true);time+=800;stable.Observe("瞼が重い。",true);time+=400;stable.Observe("瞼が重い。",true);
+Check(events[^1].Phase=="stable"&&events[^1].Text=="瞼が重い。","a persistent real short glyph change is eventually submitted");
+var savedPage="新しい住まいは山を降りたところにある。\n裏には大きなスーパーがあった。";
+var retainedPage=new PageText();retainedPage.Accept(savedPage,retainedPage.Read(savedPage));
+var recoveryFlag=false;var recoveredDelta="";var flow=new TextStabilizer(()=>time);
+flow.TimedOut=()=>recoveryFlag=true;
+flow.Event=(_,phase,text,_)=>{if(phase=="empty")retainedPage.Reset(!recoveryFlag);else if(phase=="stable")recoveredDelta=retainedPage.Read(text).Text;};
+for(int n=0;n<41;n++){time+=220;flow.Observe(savedPage+"\n表示中"+n,true);}
+Check(recoveryFlag,"capture timeout is marked before its empty event reaches page scheduling");
+flow.Observe(savedPage+"\nそれで当時の私は都会だと思っていた。",true);time+=500;flow.Observe(savedPage+"\nそれで当時の私は都会だと思っていた。",true);
+Check(recoveredDelta=="それで当時の私は都会だと思っていた。","timeout recovery preserves the prior NVL prefix and submits only the new paragraph");
+retainedPage.Reset(true);Check(retainedPage.Read(savedPage).Text==savedPage,"a genuinely cleared page still resets the NVL baseline");
+PriorityChecks.Run(Check);
+LayoutChecks.Run(Check);
+InteractionChecks.Run(Check);
+ReliabilityChecks.Run(Check);
+if(args.Length==2&&args[0]=="--services")await ServiceChecks.Run(Check,args[1]);
+Console.WriteLine(checks+" native capture and layout checks passed");

@@ -1,0 +1,11 @@
+{
+  "model_repository": "SakuraLLM/GalTransl-v4-4B-2601",
+  "model_revision": "d56c8770a37d93b2bd408a13ddd24d55c53f8578",
+  "download_source": "https://huggingface.co/SakuraLLM/GalTransl-v4-4B-2601/resolve/d56c8770a37d93b2bd408a13ddd24d55c53f8578/Galtransl-v4-4B-2601.gguf?download=true",
+  "model_file": "Galtransl-v4-4B-2601.gguf",
+  "model_sha256": "875d5f1f44981fce3c99a032c180cb0d66563bdd39aa27c0ee6a17676bc9e2cd",
+  "runtime_directory": "../runtime/b11429",
+  "llama_cpp_release": "b11429",
+  "quantization": "Q6_K",
+  "license": "cc-by-nc-sa-4.0"
+}
